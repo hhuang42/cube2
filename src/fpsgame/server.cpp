@@ -16,7 +16,7 @@ namespace game
 }
 
 extern ENetAddress masteraddress;
-
+FILE* logfile;
 namespace server
 {
     struct server_entity            // server side version of "entity" type
@@ -2233,6 +2233,7 @@ namespace server
 
     void shotevent::process(clientinfo *ci)
     {
+        
         gamestate &gs = ci->state;
         int wait = millis - gs.lastshot;
         if(!gs.isalive(gamemillis) ||
@@ -2266,6 +2267,7 @@ namespace server
                     int damage = h.rays*guns[gun].damage;
                     if(gs.quadmillis) damage *= 4;
                     dodamage(target, ci, damage, gun, h.dir);
+                    
                 }
                 break;
             }

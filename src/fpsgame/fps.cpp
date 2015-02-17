@@ -1,4 +1,9 @@
 #include "game.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <time.h>
+
 
 namespace game
 {
@@ -12,6 +17,7 @@ namespace game
     fpsent *player1 = NULL;         // our client
     vector<fpsent *> players;       // other clients
     int savedammo[NUMGUNS];
+    
 
     bool clientoption(const char *arg) { return false; }
 
@@ -458,6 +464,8 @@ namespace game
             else conoutf(CON_GAMEINFO, "\f2player frags: %d, deaths: %d", player1->frags, player1->deaths);
             int accuracy = (player1->totaldamage*100)/max(player1->totalshots, 1);
             conoutf(CON_GAMEINFO, "\f2player total damage dealt: %d, damage wasted: %d, accuracy(%%): %d", player1->totaldamage, player1->totalshots-player1->totaldamage, accuracy);
+            int hitaccuracy = (player1->totalhits*100)/max(player1->totalhitattempts, 1);
+            conoutf(CON_GAMEINFO, "\f2player total hits dealt: %d, hits wasted: %d, accuracy(%%): %d", player1->totalhits, player1->totalhitattempts-player1->totalhits, hitaccuracy);
             if(m_sp) spsummary(accuracy);
 
             showscores(true);
@@ -537,9 +545,27 @@ namespace game
     }
 
     VARP(showmodeinfo, 0, 1, 1);
+    
+    void startlogfile(){
+        char directory [80] = "test_logs";
+        time_t current_time;
+        struct stat st = {0};
+        if(stat(directory, &st) == -1){
+            mkdir(directory, 0700);
+        }
+        time(&current_time);
+        strcat(directory, "/");
+        strcat(directory, ctime(&current_time));
+        strcat(directory, ".csv");
+        logfile = fopen(directory, "w");
+        
+        
+        
+    }
 
     void startgame()
     {
+        startlogfile();
         clearmovables();
         clearmonsters();
 
@@ -556,6 +582,8 @@ namespace game
             d->frags = d->flags = 0;
             d->deaths = 0;
             d->totaldamage = 0;
+            d->totalhits = 0;
+            d->totalhitattempts = 0;
             d->totalshots = 0;
             d->maxhealth = 100;
             d->lifesequence = -1;

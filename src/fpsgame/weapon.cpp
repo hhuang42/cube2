@@ -344,8 +344,11 @@ namespace game
         fpsent *f = (fpsent *)d;
 
         f->lastpain = lastmillis;
-        if(at->type==ENT_PLAYER && !isteam(at->team, f->team)) at->totaldamage += damage;
-
+        if(at->type==ENT_PLAYER && !isteam(at->team, f->team)){
+            at->totaldamage += damage;
+            at->totalhits += 1;
+            fprintf(logfile,"hit_event,%s,%s,%s,\n", at->name, guns[gun].name, f->name);
+        }
         if(f->type==ENT_AI || !m_mp(gamemode) || f==at) f->hitpush(damage, vel, at, gun);
 
         if(f->type==ENT_AI) hitmonster(damage, (monster *)f, at, vel, gun);
@@ -802,6 +805,8 @@ namespace game
 		d->gunwait = guns[d->gunselect].attackdelay;
 		if(d->gunselect == GUN_PISTOL && d->ai) d->gunwait += int(d->gunwait*(((101-d->skill)+rnd(111-d->skill))/100.f));
         d->totalshots += guns[d->gunselect].damage*(d->quadmillis ? 4 : 1)*guns[d->gunselect].rays;
+        d->totalhitattempts += 1;
+        fprintf(logfile,"shot_event,%s,%s\n", d->name,guns[d->gunselect].name);
     }
 
     void adddynlights()

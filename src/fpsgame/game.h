@@ -2,6 +2,7 @@
 #define __GAME_H__
 
 #include "cube.h"
+#include <stdio.h>
 
 // console message types
 
@@ -542,7 +543,7 @@ struct fpsent : dynent, fpsstate
     int lasttaunt;
     int lastpickup, lastpickupmillis, lastbase, lastrepammo, flagpickup, tokens;
     vec lastcollect;
-    int frags, flags, deaths, totaldamage, totalshots;
+    int frags, flags, deaths, totaldamage, totalshots, totalhits, totalhitattempts;
     editinfo *edit;
     float deltayaw, deltapitch, deltaroll, newyaw, newpitch, newroll;
     int smoothmillis;
@@ -554,7 +555,7 @@ struct fpsent : dynent, fpsstate
 
     vec muzzle;
 
-    fpsent() : weight(100), clientnum(-1), privilege(PRIV_NONE), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), attacksound(-1), attackchan(-1), idlesound(-1), idlechan(-1), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), edit(NULL), smoothmillis(-1), playermodel(-1), ai(NULL), ownernum(-1), muzzle(-1, -1, -1)
+    fpsent() : weight(100), clientnum(-1), privilege(PRIV_NONE), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), attacksound(-1), attackchan(-1), idlesound(-1), idlechan(-1), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), totalhits(0), totalhitattempts(0), edit(NULL), smoothmillis(-1), playermodel(-1), ai(NULL), ownernum(-1), muzzle(-1, -1, -1)
     {
         name[0] = team[0] = info[0] = 0;
         respawn();
@@ -661,6 +662,10 @@ namespace entities
     extern void repammo(fpsent *d, int type, bool local = true);
 }
 
+    //logging
+
+    extern FILE* logfile;
+
 namespace game
 {
     struct clientmode
@@ -687,6 +692,8 @@ namespace game
         virtual bool aidefend(fpsent *d, ai::aistate &b) { return false; }
         virtual bool aipursue(fpsent *d, ai::aistate &b) { return false; }
     };
+
+
 
     extern clientmode *cmode;
     extern void setclientmode();
